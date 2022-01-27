@@ -1,10 +1,22 @@
 require('dotenv').config();
-
+const axios = require('axios');
 const tmi = require('tmi.js');
-const { password } = require('tmi.js/lib/utils');
+const { password, get } = require('tmi.js/lib/utils');
 
 const regexpCommand = new RegExp(/^!([a-zA-Z0-9]+)(?:\W+)?(.*)?/);
-
+async function getRank(){
+    try
+    {
+        res = await axios.get(`https://api.kyroskoh.xyz/valorant/v1/mmr/ap/${process.env.RIOT_ACCOUNT_NAME}/${process.env.RIOT_TAGS}`)
+        resData = res.data
+        console.log(typeof(resData))
+        rank=resData
+        return JSON.stringify(resData) 
+    }
+    catch (e){
+        console.log(e.message)
+    }
+}
 const commands = {
     'author' : {
         'response' : 'It\'s a me Mario'
@@ -16,7 +28,7 @@ const commands = {
         'response' : 'DPI : 800 Valorant : 0.45'
     },
     'rank' : {
-        'response' : 'Platinum 3'
+        'response' : `phaiez's rank : `
     },
     'setup' : {
         'response' : 'Monitor : zowie 144hz xl2411p \n\rCPU : i7 12700KF GPU : GTX1070 RAM : ddr5 16GB \n\rKeyboard : tofu65 acrylic switches : holypanda \n\rMouse : gpro x superlight \n\rMousepad : vaxee pa winter 21'   
@@ -45,16 +57,21 @@ client.on('message', (channel, tags, message, self) => {
         textCommand = message.split('!')[1]
         resMessage = ''
         try{
-            resMessage = commands[textCommand]['response']
+            if(textCommand == 'rank'){
+                (async ()=>{
+                    tag= `@${tags['display-name']} `
+                    resMessage = commands[textCommand]['response']
+                    rank = await getRank()
+                    client.say(channel,tag+resMessage+rank)
+                })();
+            }
+            else{
+                resMessage = commands[textCommand]['response']
+                client.say(channel,resMessage)
+            }
         }
         catch(e){
             console.log(e.message)
-        }
-        if(resMessage == ''){
-            return;
-        }
-        else{
-            client.say(channel,resMessage)
         }
     }
 
