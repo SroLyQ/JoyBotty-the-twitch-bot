@@ -48,6 +48,8 @@ const client = new tmi.Client({
 
 client.connect();
 
+console.log('Connected')
+
 client.on('message', (channel, tags, message, self) => {
 	// "Alca: Hello, World!"
     const isNotBot = tags.username.toLowerCase() !== process.env.BOT_USERNAME;
@@ -67,7 +69,7 @@ client.on('message', (channel, tags, message, self) => {
             }
             else{
                 resMessage = commands[textCommand]['response']
-                client.say(channel,resMessage)
+                client.say(channel,tag+resMessage)
             }
         }
         catch(e){
